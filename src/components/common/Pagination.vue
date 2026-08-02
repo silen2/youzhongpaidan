@@ -192,7 +192,6 @@ function onPageSizeChange(value: string | number) {
   /* 与表头吸顶栏统一：同色浅色玻璃（--glass-bg-strong）+ 同等模糊，视觉一致 */
   background: var(--glass-bg-strong);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   /* 统一基准字号：所有分页控件（文字/按钮/下拉/输入框）继承同一字号；
      em 相对页面正文，随屏宽放大（与表格正文 0.875em 同一视觉量级） */
   font-size: 0.875em;

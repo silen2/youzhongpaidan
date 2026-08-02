@@ -56,7 +56,6 @@ onBeforeUnmount(() => {
   justify-content: center;
   background: rgba(10, 8, 25, 0.78);
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   padding: clamp(1rem, 4vw, 3rem);
   cursor: zoom-out;
 }

@@ -792,7 +792,6 @@ onBeforeUnmount(() => {
     linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 6%, transparent), transparent 45%),
     var(--glass-bg-strong);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   box-shadow: var(--shadow-glass), var(--shadow-inner-glass);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -848,7 +847,6 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-full);
   background: var(--glass-bg-panel);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -879,7 +877,6 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-full);
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur-light));
-  -webkit-backdrop-filter: blur(var(--glass-blur-light));
   box-shadow: var(--shadow-inner-glass);
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
@@ -961,7 +958,6 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-xl);
   background: var(--glass-bg-panel);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   box-shadow: var(--shadow-glass), 0 16px 40px -12px rgba(0, 0, 0, 0.45);
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-text) 25%, transparent) transparent;
@@ -1076,7 +1072,6 @@ onBeforeUnmount(() => {
     linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent 120px),
     var(--glass-bg-strong);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 .gantt-labels-head {
   height: 56px;
@@ -1198,7 +1193,6 @@ onBeforeUnmount(() => {
   /* 与客户列表表头一致的玻璃渐变 + 分隔线（模仿 .data-table-inner thead th） */
   background: linear-gradient(180deg, color-mix(in srgb, var(--glass-bg-strong) 88%, var(--color-accent-soft)), var(--glass-bg-strong));
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-text-muted);
   box-shadow: var(--shadow-inner-glass);
 }
@@ -1382,7 +1376,6 @@ onBeforeUnmount(() => {
   line-height: 1;
   white-space: nowrap;
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .gantt-bar-badge.is-overdue {
   background: color-mix(in srgb, var(--color-danger) 92%, transparent);

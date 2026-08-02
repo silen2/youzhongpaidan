@@ -235,7 +235,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onClickOutside))
   flex-direction: column;
   background: var(--glass-bg-panel);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass-hover), var(--shadow-inner-glass);

@@ -500,7 +500,6 @@ onMounted(async () => {
   background: var(--glass-bg);
   /* 磨砂玻璃：模糊背后内容，保证列头/卡片文字可读 */
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-glass), inset 0 1px 0 var(--glass-border-soft);
@@ -528,7 +527,6 @@ onMounted(async () => {
   background: linear-gradient(180deg, var(--glass-bg-strong), var(--glass-bg) 60%, transparent);
   /* 列头独立磨砂：标题区更实，背后文字不穿透 */
   backdrop-filter: blur(var(--glass-blur-light));
-  -webkit-backdrop-filter: blur(var(--glass-blur-light));
   border-bottom: 1px solid var(--glass-border-soft);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   overflow: hidden;

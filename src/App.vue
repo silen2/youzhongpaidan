@@ -529,7 +529,6 @@ const navItems = [
   flex-direction: column;
   background: var(--glass-bg-panel);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-glass-hover), var(--shadow-inner-glass), 0 12px 32px rgba(0, 0, 0, 0.16);

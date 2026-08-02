@@ -278,7 +278,6 @@ async function handleSave() {
   padding: 0.875rem 0.875rem 0.75rem;
   background: var(--glass-bg-strong);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 2px solid transparent;
   border-radius: 0.75rem;
   transition: all 0.2s ease;

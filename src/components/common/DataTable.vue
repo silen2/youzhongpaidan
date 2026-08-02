@@ -1035,7 +1035,6 @@ function formatCell(row: any, col: ColumnDef): string {
   width: 280px;
   background: var(--glass-bg-strong);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass-hover), var(--shadow-inner-glass);
@@ -1223,7 +1222,6 @@ function formatCell(row: any, col: ColumnDef): string {
   /* 玻璃渐变表头：与卡片/工具栏一致的微光质感，靠自身 backdrop-filter 模糊滚过表头下方的行 */
   background: linear-gradient(180deg, color-mix(in srgb, var(--glass-bg-strong) 88%, var(--color-accent-soft)), var(--glass-bg-strong));
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   height: 3.5rem;
   /* 行距收紧：正文随屏宽放大时表头保持 3.5rem 高度不撑破 */
   line-height: 1.3;

@@ -260,7 +260,6 @@ body::after {
   .glass-card {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-glass), var(--shadow-inner-glass);
@@ -295,7 +294,6 @@ body::after {
   .glass-nav {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border-right: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
@@ -335,7 +333,6 @@ body::after {
   .glass-header {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border-bottom: 1px solid var(--glass-border);
   }
 
@@ -552,14 +549,12 @@ body::after {
     @apply fixed inset-0 flex items-center justify-center z-50;
     background: var(--color-overlay);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     animation: fade-in 0.2s ease-out;
     padding: var(--space-4);
   }
   .glass-modal {
     background: var(--glass-bg-strong);
     backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-glass-hover), var(--shadow-inner-glass);
@@ -902,7 +897,6 @@ body::after {
   .glass-toolbar {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);
     padding: var(--space-3) var(--space-4);

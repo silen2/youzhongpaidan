@@ -131,7 +131,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onClickOutside))
   position: fixed;
   background: var(--glass-bg-strong);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass-hover), var(--shadow-inner-glass), 0 12px 32px rgba(0, 0, 0, 0.16);

@@ -280,7 +280,6 @@ onBeforeUnmount(() => {
   font-family: var(--font-body);
   line-height: 1.5;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -329,7 +328,6 @@ onBeforeUnmount(() => {
   z-index: 300;
   background: var(--glass-bg-panel);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass-hover), var(--shadow-inner-glass);

@@ -256,7 +256,6 @@ function cancel() { emit('close') }
   padding: var(--space-4) var(--space-8);
   background: var(--glass-bg-strong);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border);
 }
 .glass-modal-header-inner {

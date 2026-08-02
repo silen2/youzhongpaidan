@@ -37,6 +37,21 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  css: {
+    transformer: 'lightningcss',
+    // 目标锁定现代浏览器：Lightning CSS 才会保留标准 backdrop-filter 属性。
+    // 默认（兼容老浏览器）会把 backdrop-filter 降级为仅 -webkit-backdrop-filter，
+    // 现代 Chrome 不认该前缀 → 磨砂玻璃在生产构建中失效（本地 dev 加载源码不受影响）。
+    lightningcss: {
+      // 版本号需 32 位编码（major << 16 | minor << 8 | patch）
+      targets: {
+        chrome: 120 << 16,
+        safari: 16 << 16,
+        firefox: 120 << 16,
+        edge: 120 << 16,
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,

@@ -97,7 +97,6 @@ const tabs = [
   padding: var(--space-3);
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-glass), var(--shadow-inner-glass);
