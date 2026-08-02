@@ -42,7 +42,8 @@ function toggleCollapsed() {
 }
 
 // 品牌图片位：默认使用内置头图（public/brand-logo.jpg），主题外观里可上传自定义图覆盖
-const DEFAULT_BRAND_IMAGE = '/brand-logo.jpg'
+// 用 BASE_URL 拼接：GitHub Pages 子路径部署下仍能正确指向 /youzhongpaidan/brand-logo.jpg
+const DEFAULT_BRAND_IMAGE = import.meta.env.BASE_URL + 'brand-logo.jpg'
 const brandImageUrl = computed(() => theme.customBrandImage || DEFAULT_BRAND_IMAGE)
 
 /** 把当前头图同步为浏览器标签页图标（favicon），自定义图优先，否则用默认图 */

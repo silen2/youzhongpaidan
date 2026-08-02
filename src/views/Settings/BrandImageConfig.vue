@@ -103,8 +103,8 @@ import { Image as ImageIcon, Upload, Crop, Trash2, X, Check } from '@lucide/vue'
 import { useThemeStore } from '@/stores/theme'
 import { cropImage, downscaleImage, type CropRegion } from '@/utils/image-processing'
 
-/** 内置默认头图（public 静态资源，打包后 /brand-logo.jpg） */
-const DEFAULT_BRAND = '/brand-logo.jpg'
+/** 内置默认头图（public 静态资源，BASE_URL 拼接以适配子路径部署） */
+const DEFAULT_BRAND = import.meta.env.BASE_URL + 'brand-logo.jpg'
 
 const theme = useThemeStore()
 const fileInput = ref<HTMLInputElement | null>(null)
