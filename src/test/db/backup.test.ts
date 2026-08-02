@@ -65,9 +65,7 @@ describe('备份导出 / 导入', () => {
       direction: 'in',
       amount: 200,
       receivedAt: now,
-      sourceId: '',
-      sourceName: '',
-      note: '',
+      notes: '',
     })
 
     const data = await exportAllData(testDb)
