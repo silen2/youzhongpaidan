@@ -130,6 +130,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { AlertTriangle, Bell, Check, Download, Upload } from '@lucide/vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useNotificationStore } from '@/stores/notification'
+import { exportAllData, importAllData } from '@/db'
 
 const store = useSettingsStore()
 const notificationStore = useNotificationStore()
@@ -190,35 +191,41 @@ function saveNotificationSettings() {
   alert('通知设置已保存')
 }
 
-function exportData() {
-  const data = {
-    sources: store.sources,
-    categories: store.categories,
-    customerTypes: store.customerTypes,
-    stages: store.stages,
-    followUpTypes: store.followUpTypes,
-    exportAt: new Date().toISOString(),
+/** 导出全部数据（14 张表，附件以 dataURL 编码），文件名带日期便于归档 */
+async function exportData() {
+  try {
+    const data = await exportAllData()
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `youzhongpaidan-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    alert(`导出成功！\n订单 ${data.orders.length}、客户 ${data.customers.length}、账单 ${data.paymentRecords.length}、附件 ${data.orderAttachments.length}`)
+  } catch (e) {
+    alert(`导出失败：${(e as Error).message}`)
   }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `hetong-jira-backup-${Date.now()}.json`
-  a.click()
-  URL.revokeObjectURL(url)
 }
 
-function importData(event: Event) {
+async function importData(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
-  if (!confirm('导入将覆盖现有数据，确定继续？')) { input.value = ''; return }
+  if (!confirm('导入将覆盖现有全部数据（订单/客户/账单/跟进/附件），确定继续？')) {
+    input.value = ''
+    return
+  }
   const reader = new FileReader()
   reader.onload = async (e) => {
     try {
       const data = JSON.parse(e.target?.result as string)
-      alert(`导入成功！\n来源: ${data.sources?.length || 0}\n类别: ${data.categories?.length || 0}\n阶段: ${data.stages?.length || 0}`)
-    } catch { alert('导入失败：文件格式错误') }
+      const summary = await importAllData(data)
+      alert(`导入成功！\n订单 ${summary.orders}、客户 ${summary.customers}、账单 ${summary.paymentRecords}、附件 ${summary.attachments}`)
+      window.location.reload()
+    } catch (err) {
+      alert(`导入失败：${(err as Error).message}`)
+    }
   }
   reader.readAsText(file)
   input.value = ''

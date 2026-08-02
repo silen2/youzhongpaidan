@@ -1,8 +1,25 @@
 import Dexie from 'dexie'
-import type { Db, Source, Category, CustomerType, Stage } from '@/types'
+import type {
+  Db,
+  Source,
+  Category,
+  CustomerType,
+  Stage,
+  Order,
+  OrderCategory,
+  Customer,
+  PaymentRecord,
+  FollowUp,
+  StageTransition,
+  OrderAttachment,
+  Notification,
+  WeightConfig,
+  FollowUpType,
+} from '@/types'
 import { generateOrderNo as generateOrderNoPure } from '@/domain/order/order-number'
 import { calculateWeight as calculateWeightPure } from '@/domain/customer/weight-calculator'
 import { computeCustomerStats } from '@/domain/customer/customer-stats'
+import { dataUrlToBlob } from '@/domain/attachment/attachment'
 
 export const db = new Dexie('hetong-jira') as Db
 
@@ -167,4 +184,186 @@ export async function recalculateAllCustomers(): Promise<void> {
  */
 export async function resetDatabase(): Promise<void> {
   await db.delete()
+}
+
+// ===== 备份导出 / 导入（数据安全：全量 14 张表，附件 Blob 以 dataURL 编码保留 mime）=====
+
+/** 备份文件中的附件表示：Blob 序列化为 dataURL（含 mime，导入时还原） */
+export interface AttachmentBackup {
+  id: string
+  orderId: string
+  type: string
+  filename: string
+  /** 原图 Blob → dataURL */
+  fileData: string
+  /** 缩略图 Blob → dataURL（可选） */
+  thumbnailData?: string
+  fileSize: number
+  uploadedAt: string
+}
+
+/** 完整备份数据：全部 14 张表 + 元信息 */
+export interface BackupData {
+  /** 备份格式版本，便于后续升级迁移 */
+  version: 1
+  exportedAt: string
+  orders: Order[]
+  orderCategories: OrderCategory[]
+  customers: Customer[]
+  sources: Source[]
+  categories: Category[]
+  customerTypes: CustomerType[]
+  stages: Stage[]
+  paymentRecords: PaymentRecord[]
+  followUps: FollowUp[]
+  stageTransitions: StageTransition[]
+  orderAttachments: AttachmentBackup[]
+  notifications: Notification[]
+  weightConfig: WeightConfig | null
+  followUpTypes: FollowUpType[]
+}
+
+/**
+ * Blob → dataURL（`data:<mime>;base64,...`），保留 mime 供导入还原。
+ * 用 FileReader 而非 blob.arrayBuffer()：fake-indexeddb 的 Blob 实现缺少 arrayBuffer 方法。
+ * 导出供单测：附件转换不经过 IndexedDB（fake-indexeddb 不支持 Blob 完整克隆）。
+ */
+export function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error ?? new Error('读取附件失败'))
+    reader.readAsDataURL(blob)
+  })
+}
+
+/** 导出全部业务数据 + 模板配置为可序列化结构 */
+export async function exportAllData(dbInstance: Db = db): Promise<BackupData> {
+  const [
+    orders,
+    orderCategories,
+    customers,
+    sources,
+    categories,
+    customerTypes,
+    stages,
+    paymentRecords,
+    followUps,
+    stageTransitions,
+    orderAttachments,
+    notifications,
+    weightConfig,
+    followUpTypes,
+  ] = await Promise.all([
+    dbInstance.orders.toArray(),
+    dbInstance.orderCategories.toArray(),
+    dbInstance.customers.toArray(),
+    dbInstance.sources.toArray(),
+    dbInstance.categories.toArray(),
+    dbInstance.customerTypes.toArray(),
+    dbInstance.stages.toArray(),
+    dbInstance.paymentRecords.toArray(),
+    dbInstance.followUps.toArray(),
+    dbInstance.stageTransitions.toArray(),
+    dbInstance.orderAttachments.toArray(),
+    dbInstance.notifications.toArray(),
+    dbInstance.weightConfig.get(1),
+    dbInstance.followUpTypes.toArray(),
+  ])
+
+  const attachments: AttachmentBackup[] = await Promise.all(
+    orderAttachments.map(async (a) => ({
+      id: a.id,
+      orderId: a.orderId,
+      type: a.type,
+      filename: a.filename,
+      fileSize: a.fileSize,
+      uploadedAt: a.uploadedAt,
+      fileData: await blobToDataUrl(a.fileData),
+      thumbnailData: a.thumbnailData ? await blobToDataUrl(a.thumbnailData) : undefined,
+    })),
+  )
+
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    orders,
+    orderCategories,
+    customers,
+    sources,
+    categories,
+    customerTypes,
+    stages,
+    paymentRecords,
+    followUps,
+    stageTransitions,
+    orderAttachments: attachments,
+    notifications,
+    weightConfig: weightConfig ?? null,
+    followUpTypes,
+  }
+}
+
+/** 业务表：导入时整体覆盖（清空后写入） */
+const BUSINESS_TABLES = [
+  'orders',
+  'orderCategories',
+  'customers',
+  'paymentRecords',
+  'followUps',
+  'stageTransitions',
+  'orderAttachments',
+  'notifications',
+] as const
+
+export interface ImportSummary {
+  orders: number
+  customers: number
+  paymentRecords: number
+  attachments: number
+}
+
+/**
+ * 导入备份：清空业务表后整体写入；模板表（来源/类别/客户类型/阶段/跟进类型）非空不覆盖，
+ * 保留用户当前自定义配置（空库时用备份中的模板恢复）。
+ * 导入后调用方需刷新页面（store 重新加载）。
+ */
+export async function importAllData(data: BackupData, dbInstance: Db = db): Promise<ImportSummary> {
+  for (const t of BUSINESS_TABLES) {
+    await dbInstance[t].clear()
+  }
+
+  await dbInstance.orders.bulkAdd(data.orders)
+  await dbInstance.orderCategories.bulkAdd(data.orderCategories)
+  await dbInstance.customers.bulkAdd(data.customers)
+  await dbInstance.paymentRecords.bulkAdd(data.paymentRecords)
+  await dbInstance.followUps.bulkAdd(data.followUps)
+  await dbInstance.stageTransitions.bulkAdd(data.stageTransitions)
+
+  const attachments: OrderAttachment[] = data.orderAttachments.map((a) => ({
+    id: a.id,
+    orderId: a.orderId,
+    type: a.type as OrderAttachment['type'],
+    filename: a.filename,
+    fileSize: a.fileSize,
+    uploadedAt: a.uploadedAt,
+    fileData: dataUrlToBlob(a.fileData),
+    thumbnailData: a.thumbnailData ? dataUrlToBlob(a.thumbnailData) : undefined,
+  }))
+  await dbInstance.orderAttachments.bulkAdd(attachments)
+  await dbInstance.notifications.bulkAdd(data.notifications)
+
+  // 模板表：非空不覆盖（保留当前自定义）
+  if ((await dbInstance.sources.count()) === 0 && data.sources.length > 0) await dbInstance.sources.bulkAdd(data.sources)
+  if ((await dbInstance.categories.count()) === 0 && data.categories.length > 0) await dbInstance.categories.bulkAdd(data.categories)
+  if ((await dbInstance.customerTypes.count()) === 0 && data.customerTypes.length > 0) await dbInstance.customerTypes.bulkAdd(data.customerTypes)
+  if ((await dbInstance.stages.count()) === 0 && data.stages.length > 0) await dbInstance.stages.bulkAdd(data.stages)
+  if ((await dbInstance.followUpTypes.count()) === 0 && data.followUpTypes.length > 0) await dbInstance.followUpTypes.bulkAdd(data.followUpTypes)
+
+  return {
+    orders: data.orders.length,
+    customers: data.customers.length,
+    paymentRecords: data.paymentRecords.length,
+    attachments: data.orderAttachments.length,
+  }
 }
