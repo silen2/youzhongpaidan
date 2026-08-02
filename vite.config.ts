@@ -5,9 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'node:path'
 
 export default defineConfig({
-  // GitHub Pages 子路径部署：https://silen2.github.io/hetong-jira/
+  // GitHub Pages 子路径部署：https://silen2.github.io/youzhongpaidan/
   // 仓库名变更时需同步修改；本地开发不受影响
-  base: '/hetong-jira/',
+  base: '/youzhongpaidan/',
   plugins: [
     vue(),
     tailwindcss(),
