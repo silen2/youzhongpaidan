@@ -247,6 +247,7 @@
 import { ref, computed, watch, reactive } from 'vue'
 import { ClipboardList, ClipboardPen } from '@lucide/vue'
 import { useOrderStore } from '@/stores/order'
+import { usePaymentStore } from '@/stores/payment'
 import { useCustomerStore } from '@/stores/customer'
 import { useSettingsStore } from '@/stores/settings'
 import { usePreferencesStore } from '@/stores/preferences'
@@ -266,6 +267,7 @@ const emit = defineEmits<{
 }>()
 
 const orderStore = useOrderStore()
+const paymentStore = usePaymentStore()
 const customerStore = useCustomerStore()
 const settingsStore = useSettingsStore()
 const prefs = usePreferencesStore()
@@ -487,9 +489,13 @@ async function submit() {
       currentStage: 'st-pending',
     })
     await orderStore.saveOrderCategories(newOrder.id, form.value.categoryIds)
-    // 勾选「已收定金」：复用收款事件（记定金到账 → 待开始 → 看板待开始列）
+    // 勾选「已收定金」：复用正式收款流程（写收款流水 + 联动订单状态 → 待开始 → 看板待开始列），
+    // 保证收款记录与收入统计一致（金额缺省取订单定金金额）
     if (depositReceived.value) {
-      await orderStore.updatePaymentStatus(newOrder.id, 'deposit_paid')
+      await paymentStore.addPaymentRecord({
+        orderId: newOrder.id,
+        type: 'deposit',
+      })
     }
   }
   emit('saved')
