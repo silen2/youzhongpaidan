@@ -440,6 +440,10 @@ function barStyle(row: { order: Order }) {
   }
 }
 
+/** 实际层最小可见宽度（px）：极短流转（如测试时几分钟内拖完所有阶段）按天缩放下会塌缩成几像素，
+ * 分段被 min 宽度钳制后互相覆盖、看起来像单色或丢失。低于该宽度时整体等比放大到最小宽度，保证条带可见。 */
+const MIN_ACTUAL_PX = 14
+
 /** 实际层布局：整体圆角矩形（实际开始 → 实际结束/至今）+ 内部按流转时间戳染色的阶段色条 */
 interface ActualLayerLayout {
   base: { left: string; width: string; title: string }
@@ -455,10 +459,13 @@ function buildActualLayer(order: Order): ActualLayerLayout | null {
   const baseStart = segments[0].startTs
   const baseEnd = segments[segments.length - 1].endTs
   const baseLeft = timeToX(baseStart, range.value.start, pxPerDay.value)
-  const baseW = Math.max(timeToX(baseEnd, range.value.start, pxPerDay.value) - baseLeft, 2)
+  // 实际跨度像素；极短（< 1 天）时整体等比放大到最小可见宽度，内部分段按同一比例缩放
+  const spanPx = timeToX(baseEnd, range.value.start, pxPerDay.value) - baseLeft
+  const scale = spanPx > 0 && spanPx < MIN_ACTUAL_PX ? MIN_ACTUAL_PX / spanPx : 1
+  const baseW = Math.max(spanPx, MIN_ACTUAL_PX)
   const segs = segments.map(seg => ({
-    left: `${Math.max(timeToX(seg.startTs, range.value.start, pxPerDay.value) - baseLeft, 0)}px`,
-    width: `${Math.max(timeToX(seg.endTs, range.value.start, pxPerDay.value) - timeToX(seg.startTs, range.value.start, pxPerDay.value), 2)}px`,
+    left: `${Math.max((timeToX(seg.startTs, range.value.start, pxPerDay.value) - baseLeft) * scale, 0)}px`,
+    width: `${Math.max((timeToX(seg.endTs, range.value.start, pxPerDay.value) - timeToX(seg.startTs, range.value.start, pxPerDay.value)) * scale, 2)}px`,
     color: seg.color,
     title: `${seg.stageName} ${fmtTs(seg.startTs)} ~ ${fmtTs(seg.endTs)}`,
   }))
